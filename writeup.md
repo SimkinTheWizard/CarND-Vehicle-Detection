@@ -29,7 +29,9 @@ The goals / steps of this project are the following:
 [image13]: ./output_images/detections_15_2.png
 [image14]: ./output_images/detections_20_2.png
 [image15]: ./output_images/detections_25_2.png
-
+[image16]: ./output_images/heat_map.png
+[image17]: ./output_images/thresholded_heat_map.png
+[image18]: ./output_images/bounding_boxes_on_image.png
 [video1]: ./project_video_out.avi
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/513/view) Points
@@ -146,22 +148,32 @@ The 'Classification' part of 'Part 3' heading of the 'ProjectCode.ipynb' shows t
 Here's a [link to my video result](./project_video_out.avi)
 ![alt text][video1]
 
+For performance reasons, I separated video processing to a separate file and run it on bare python instead of Jupyter notebook. Please see 'ProcessVideo.py' for video implementation code.
 
 #### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
 
-I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap and then thresholded that map to identify vehicle positions.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.  
+The operations return multiple detections on the detected images and some false positives, where there are no cars. To prevent/reduce this effect I used heat maps. Heat maps work with the assumption that true positives will be seen in multiple overlapping cells, and the cells where there are no detections in the neighboring cells may be false positives. 
 
-Here's an example result showing the heatmap from a series of frames of video, the result of `scipy.ndimage.measurements.label()` and the bounding boxes then overlaid on the last frame of video:
+For each detection on image, I added the detection to the heat map. After all detections are added I used a threshold on the heat map. This thresholding eliminated parts of the image where only one detection is present. After this stepp I separated the detections with connected components labelling and received their bounding boxes. Finally, I have drawn the bounding boxes as the final detections.
 
-### Here are six frames and their corresponding heatmaps:
+The 'Heat Map' part of 'Part 3' heading of the 'ProjectCode.ipynb' shows the code I used heat maps and labeling.
 
-![alt text][image5]
 
-### Here is the output of `scipy.ndimage.measurements.label()` on the integrated heatmap from all six frames:
-![alt text][image6]
 
-### Here the resulting bounding boxes are drawn onto the last frame in the series:
-![alt text][image7]
+### Here are detections:
+![alt text][image8]
+![alt text][image9]
+![alt text][image10]
+![alt text][image11]
+
+### The heat maps of these detections are dislplayed in the following heat map:
+![alt text][image16]
+
+### The thresholding eliminated the false positive:
+![alt text][image17]
+
+### Here the resulting bounding boxes are drawn onto the frame:
+![alt text][image18]
 
 
 
@@ -171,10 +183,9 @@ Here's an example result showing the heatmap from a series of frames of video, t
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further. 
+There are some points I've observed that degrades the performance of the system, and I share my opinions on how to improve them.
 
---Aspect ratio of the images, and search window shape
+The first observation is that our classification consisted of square shaped images whereas more often than not, test samples are not squares but rectangles. This effect of aspect ratio is decreasing our classification performance. Althoug it is not practical train classifiers and make inferences with different shapes, we can use asymmetrical scaling when doing sliding video search. In other words we can scale in x direction with a different ratio than y direction. We are already doing multiple scaling operations, so this would not require too much effort, but it may increase the performance.
 
---Thresholding of heatmaps is sub-optimal / morphologica erosion/dilation
+Another point I've observed is that thresholding heatmaps is not optimal. Sometimes thresholding the heatmap produces little island shapes where detections overlap but not too much. A better way to handle heatmaps may be to use grayscale morphological operations. A series of grayscale erosion and dilation operations used standalone or together with thresholding would eliminate these island shapes, and provide better shapes, better resembling the detected vehicles. 
 
---Rotation invariance
