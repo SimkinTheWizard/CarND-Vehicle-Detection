@@ -21,7 +21,7 @@ video_file="project_video.mp4"
 output_file="project_video_out.avi"
 
 verbose=False
-multi_core=True
+multi_core=False
 CPU_BATCH_SIZE=16
 
 def cvt_colorspace(image, cspace='RGB'):
