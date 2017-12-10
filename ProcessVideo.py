@@ -18,7 +18,7 @@ clf = joblib.load('classifier.pkl')
 X_scaler = joblib.load('scale.pkl')
 
 video_file="project_video.mp4"
-output_file="project_video_out2.avi"
+output_file="project_video_out.avi"
 
 verbose=False
 multi_core=True
@@ -86,7 +86,7 @@ def find_cars(img, y_start_stop, scale, svc, X_scaler, orient, pix_per_cell, cel
     # 64 was the orginal sampling rate, with 8 cells and 8 pix per cell
     window = 64
     nblocks_per_window = (window // pix_per_cell) - cell_per_block + 1
-    cells_per_step = 2  # Instead of overlap, define how many cells to step
+    cells_per_step = 1  # Instead of overlap, define how many cells to step
     nxsteps = (nxblocks - nblocks_per_window) // cells_per_step
     nysteps = (nyblocks - nblocks_per_window) // cells_per_step
 
