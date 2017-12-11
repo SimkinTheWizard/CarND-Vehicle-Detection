@@ -18,12 +18,12 @@ clf = joblib.load('classifier.pkl')
 X_scaler = joblib.load('scale.pkl')
 
 video_file="project_video.mp4"
-output_file="project_video_out6.avi"
+output_file="project_video_out.avi"
 
 verbose=False
 multi_core=True
-CPU_BATCH_SIZE=128
-heat_threshold = 5
+CPU_BATCH_SIZE=16
+heat_threshold = 4
 
 def cvt_colorspace(image, cspace='RGB'):
     if cspace != 'RGB':
@@ -198,7 +198,7 @@ def process_frame(img):
         debug_rectangles.append(window)
 
     scale = 1.5
-    y_start_stop = (380, 550)
+    y_start_stop = (380, 500)
     found_windows = find_cars(img, y_start_stop, scale, clf, X_scaler, orient, pix_per_cell, cell_per_block,
                               0, nbins, w_size, colorspace, False)
     add_heat(heat_map, found_windows)
