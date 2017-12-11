@@ -32,6 +32,7 @@ The goals / steps of this project are the following:
 [image16]: ./output_images/heat_map.png
 [image17]: ./output_images/thresholded_heat_map.png
 [image18]: ./output_images/bounding_boxes_on_image.png
+[image19]: ./output_images/small_artifacts.png
 [video1]: ./project_video_out.avi
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/513/view) Points
@@ -175,7 +176,24 @@ The 'Heat Map' part of 'Part 3' heading of the 'ProjectCode.ipynb' shows the cod
 ### Here the resulting bounding boxes are drawn onto the frame:
 ![alt text][image18]
 
+**Update:** After these operations my code was still having many false positives, to filter out these false positives I increase the search span of all of the scales in multi-scale search windows. This way true positives would have more consensus amongs many windows, and I would be able to use a greater threshold. I also observed that the false positives were smaller and closer to the bottom. This small objects could not be at that closer to the bottom so I limited the search space of the smaller windows to the upper sides of the screen. 
 
+However increasing the threshold of heatmaps has a result of increasing the small artifacts remaining after thresholding the heatmap.
+![alt text][image15]
+
+ To get around this artifacts I added a morphological closing operation to thresholding function. So the final function has become the following:
+ 
+     def apply_threshold(heatmap, threshold):
+        # Use morphological filter filter discontinuities
+        kernel = np.ones((8, 8), np.uint8)
+        heatmap = cv2.morphologyEx(heatmap, cv2.MORPH_CLOSE, kernel)
+        # Zero out pixels below the threshold
+        heatmap[heatmap <= threshold] = 0
+        # Return thresholded map
+        return heatmap
+
+This operation reduced the unwanted artifacts significantly.
+ 
 
 ---
 
