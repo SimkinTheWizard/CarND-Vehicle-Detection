@@ -18,11 +18,12 @@ clf = joblib.load('classifier.pkl')
 X_scaler = joblib.load('scale.pkl')
 
 video_file="project_video.mp4"
-output_file="project_video_out.avi"
+output_file="project_video_out6.avi"
 
 verbose=False
-multi_core=False
-CPU_BATCH_SIZE=16
+multi_core=True
+CPU_BATCH_SIZE=128
+heat_threshold = 5
 
 def cvt_colorspace(image, cspace='RGB'):
     if cspace != 'RGB':
@@ -150,6 +151,9 @@ def add_heat(heatmap, bbox_list):
 
 
 def apply_threshold(heatmap, threshold):
+    # Use morphological filter filter discontinuities
+    kernel = np.ones((8, 8), np.uint8)
+    heatmap = cv2.morphologyEx(heatmap, cv2.MORPH_CLOSE, kernel)
     # Zero out pixels below the threshold
     heatmap[heatmap <= threshold] = 0
     # Return thresholded map
@@ -185,7 +189,7 @@ def process_frame(img):
 
     scale = 1
     w_size = 64
-    y_start_stop = (380, 500)
+    y_start_stop = (380, 450)
     debug_rectangles=[]
     found_windows = find_cars(img, y_start_stop, scale, clf, X_scaler, orient, pix_per_cell, cell_per_block,
                               0, nbins, w_size, colorspace, False)
@@ -194,7 +198,7 @@ def process_frame(img):
         debug_rectangles.append(window)
 
     scale = 1.5
-    y_start_stop = (390, 550)
+    y_start_stop = (380, 550)
     found_windows = find_cars(img, y_start_stop, scale, clf, X_scaler, orient, pix_per_cell, cell_per_block,
                               0, nbins, w_size, colorspace, False)
     add_heat(heat_map, found_windows)
@@ -202,7 +206,7 @@ def process_frame(img):
         debug_rectangles.append(window)
 
     scale = 2.0
-    y_start_stop = (400, 580)
+    y_start_stop = (380, 580)
     found_windows = find_cars(img, y_start_stop, scale, clf, X_scaler, orient, pix_per_cell, cell_per_block,
                               0, nbins, w_size, colorspace, False)
     add_heat(heat_map, found_windows)
@@ -210,7 +214,7 @@ def process_frame(img):
         debug_rectangles.append(window)
 
     scale = 2.5
-    y_start_stop = (500, 680)
+    y_start_stop = (380, 680)
     found_windows = find_cars(img, y_start_stop, scale, clf, X_scaler, orient, pix_per_cell, cell_per_block,
                               0, nbins, w_size, colorspace, False)
     add_heat(heat_map, found_windows)
@@ -237,7 +241,7 @@ cell_per_block = 3
 nbins = 16
 bins_range = (0, 256)
 
-heat_threshold = 2
+
 
 
 
